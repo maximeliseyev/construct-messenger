@@ -48,9 +48,23 @@ impl ClientCrypto {
         })
     }
 
-    /// Регистрация - делегируем X3DH
+    /// Регистрация - возвращаем публичные ключи клиента
     pub fn get_registration_bundle(&self) -> RegistrationBundle {
-        X3DH::generate_registration_bundle()
+        use ed25519_dalek::Signer;
+
+        let identity_public = x25519_dalek::PublicKey::from(&self.identity_key);
+        let signed_prekey_public = x25519_dalek::PublicKey::from(&self.signed_prekey);
+        let verifying_key = self.signing_key.verifying_key();
+
+        // Подписываем signed prekey
+        let signature = self.signing_key.sign(signed_prekey_public.as_bytes());
+
+        RegistrationBundle {
+            identity_public: identity_public.as_bytes().to_vec(),
+            signed_prekey_public: signed_prekey_public.as_bytes().to_vec(),
+            signature: signature.to_bytes().to_vec(),
+            verifying_key: verifying_key.as_bytes().to_vec(),
+        }
     }
 
     /// Инициализация сессии - используем X3DH + Double Ratchet
@@ -133,6 +147,50 @@ impl ClientCrypto {
 
     pub fn init_double_ratchet_session(&mut self, contact_id: &str, remote_bundle: &PublicKeyBundle) -> Result<String, String> {
         self.init_session(contact_id, remote_bundle)
+    }
+
+    /// Создать сессию получателя при получении первого сообщения
+    pub fn init_receiving_session(
+        &mut self,
+        contact_id: &str,
+        remote_bundle: &PublicKeyBundle,
+        first_message: &EncryptedRatchetMessage,
+    ) -> Result<String, String> {
+        let identity_public = PublicKey::from(
+            <[u8; 32]>::try_from(remote_bundle.identity_public.as_slice())
+                .map_err(|_| "Invalid identity public key")?
+        );
+        let signed_prekey_public = PublicKey::from(
+            <[u8; 32]>::try_from(remote_bundle.signed_prekey_public.as_slice())
+                .map_err(|_| "Invalid signed prekey public key")?
+        );
+        let signature = <[u8; 64]>::try_from(remote_bundle.signature.as_slice())
+            .map_err(|_| "Invalid signature")?;
+        let verifying_key = <[u8; 32]>::try_from(remote_bundle.verifying_key.as_slice())
+            .map_err(|_| "Invalid verifying key")?;
+
+        // 1. X3DH handshake
+        let root_key = X3DH::perform_x3dh(
+            &self.identity_key,
+            &self.signed_prekey,
+            &identity_public,
+            &signed_prekey_public,
+            &signature,
+            &verifying_key,
+        )?;
+
+        // 2. Создание Double Ratchet сессии для получателя
+        let session = DoubleRatchetSession::new_receiving_session(
+            root_key,
+            &self.identity_key,
+            first_message,
+            contact_id.to_string(),
+        )?;
+
+        let session_id = utils::uuid::generate_v4();
+        self.sessions.insert(session_id.clone(), session);
+
+        Ok(session_id)
     }
 
     pub fn encrypt_ratchet_message(&mut self, session_id: &str, plaintext: &[u8]) -> Result<EncryptedRatchetMessage, String> {

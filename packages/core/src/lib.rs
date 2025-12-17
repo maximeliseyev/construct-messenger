@@ -40,3 +40,15 @@ pub fn init() {
 pub fn version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }
+
+// Re-export WASM bindings
+#[cfg(target_arch = "wasm32")]
+pub use wasm::bindings::{
+    create_crypto_client,
+    get_registration_bundle,
+    init_session,
+    init_receiving_session,
+    encrypt_message,
+    decrypt_message,
+    destroy_client,
+};

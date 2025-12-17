@@ -2,10 +2,9 @@
 
 #[cfg(target_arch = "wasm32")]
 pub fn init_logging() {
-    use tracing_subscriber::fmt;
-
-    // Настраиваем логирование для WASM
-    // TODO: Более продвинутая настройка
+    // Базовая инициализация логирования для WASM
+    // В будущем можно добавить tracing_subscriber
+    log("Construct Messenger WASM initialized");
 }
 
 #[cfg(target_arch = "wasm32")]

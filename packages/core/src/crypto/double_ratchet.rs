@@ -26,6 +26,7 @@ pub struct DoubleRatchetSession {
 }
 
 impl DoubleRatchetSession {
+    /// Инициатор сессии (Alice) - создает сессию для отправки первого сообщения
     pub fn new_x3dh_session(
         root_key: [u8; 32], // Из X3DH обмена
         remote_identity_public: PublicKey,
@@ -48,6 +49,48 @@ impl DoubleRatchetSession {
             dh_ratchet_private: Some(dh_private),
             dh_ratchet_public: dh_public,
             remote_dh_public: Some(remote_identity_public),
+            previous_sending_length: 0,
+            skipped_message_keys: std::collections::HashMap::new(),
+            session_id: uuid::Uuid::new_v4().to_string(),
+            contact_id,
+        })
+    }
+
+    /// Получатель (Bob) - создает сессию при получении первого сообщения
+    pub fn new_receiving_session(
+        root_key: [u8; 32],
+        local_identity_private: &x25519_dalek::StaticSecret,
+        first_message: &EncryptedRatchetMessage,
+        contact_id: String,
+    ) -> Result<Self, String> {
+        // Извлекаем DH публичный ключ отправителя из сообщения
+        let remote_dh_public = PublicKey::from(
+            <[u8; 32]>::try_from(&first_message.dh_public_key[..])
+                .map_err(|_| "Invalid DH public key in message")?,
+        );
+
+        // Делаем DH с нашим identity ключом
+        let dh_output = local_identity_private.diffie_hellman(&remote_dh_public);
+        let (mut root_key, receiving_chain) = Self::kdf_rk(&root_key, &dh_output);
+
+        // Создаем новую DH пару для отправки
+        let dh_private = ReusableSecret::random_from_rng(rand::rngs::OsRng);
+        let dh_public = PublicKey::from(&dh_private);
+
+        // Делаем второй ratchet для sending chain
+        let dh_output2 = dh_private.diffie_hellman(&remote_dh_public);
+        let (new_root_key, sending_chain) = Self::kdf_rk(&root_key, &dh_output2);
+        root_key = new_root_key;
+
+        Ok(Self {
+            root_key,
+            sending_chain_key: sending_chain,
+            sending_chain_length: 0,
+            receiving_chain_key: receiving_chain,
+            receiving_chain_length: 0,
+            dh_ratchet_private: Some(dh_private),
+            dh_ratchet_public: dh_public,
+            remote_dh_public: Some(remote_dh_public),
             previous_sending_length: 0,
             skipped_message_keys: std::collections::HashMap::new(),
             session_id: uuid::Uuid::new_v4().to_string(),
@@ -116,28 +159,31 @@ impl DoubleRatchetSession {
     fn perform_dh_ratchet(&mut self, new_remote_dh: PublicKey) -> Result<(), String> {
         self.previous_sending_length = self.sending_chain_length;
 
-        let new_dh_private = ReusableSecret::random_from_rng(rand::rngs::OsRng);
-        let new_dh_public = PublicKey::from(&new_dh_private);
-
-        let dh1 = self
+        // 1. Получаем новый receiving chain key используя старый DH private и новый remote DH
+        let dh_receive = self
             .dh_ratchet_private
             .as_ref()
             .ok_or("No DH private key")?
             .diffie_hellman(&new_remote_dh);
 
-        let dh2 =
-            new_dh_private.diffie_hellman(&self.remote_dh_public.ok_or("No remote DH public key")?);
-
-        let (new_root_key, new_receiving_chain) = Self::kdf_rk(&self.root_key, &dh1);
+        let (new_root_key, new_receiving_chain) = Self::kdf_rk(&self.root_key, &dh_receive);
         self.root_key = new_root_key;
         self.receiving_chain_key = new_receiving_chain;
         self.receiving_chain_length = 0;
 
-        let (new_root_key2, new_sending_chain) = Self::kdf_rk(&self.root_key, &dh2);
+        // 2. Генерируем новую DH пару для sending
+        let new_dh_private = ReusableSecret::random_from_rng(rand::rngs::OsRng);
+        let new_dh_public = PublicKey::from(&new_dh_private);
+
+        // 3. Получаем sending chain key используя новый DH private и НОВЫЙ remote DH
+        let dh_send = new_dh_private.diffie_hellman(&new_remote_dh);
+
+        let (new_root_key2, new_sending_chain) = Self::kdf_rk(&self.root_key, &dh_send);
         self.root_key = new_root_key2;
         self.sending_chain_key = new_sending_chain;
         self.sending_chain_length = 0;
 
+        // 4. Обновляем состояние
         self.dh_ratchet_private = Some(new_dh_private);
         self.dh_ratchet_public = new_dh_public;
         self.remote_dh_public = Some(new_remote_dh);

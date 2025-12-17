@@ -31,6 +31,9 @@ pub enum ConstructError {
 
 pub type Result<T> = std::result::Result<T, ConstructError>;
 
+// Alias для совместимости
+pub type MessengerError = ConstructError;
+
 // Для WASM-биндингов
 #[cfg(target_arch = "wasm32")]
 impl From<ConstructError> for wasm_bindgen::JsValue {
