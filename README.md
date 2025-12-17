@@ -2,7 +2,7 @@
 
 Secure end-to-end encrypted messenger built with Rust and TypeScript.
 
-## 🏗️ Architecture
+## Architecture
 
 This is a monorepo containing:
 
@@ -15,10 +15,10 @@ This is a monorepo containing:
 
 Following the principle of **"Rust as the Engine, TypeScript as the UI"**:
 
-- ✅ **Rust handles:** All cryptography, business logic, state management, networking, data processing
-- ✅ **TypeScript handles:** UI rendering, user input, DOM manipulation, routing
+- **Rust handles:** All cryptography, business logic, state management, networking, data processing
+- **TypeScript handles:** UI rendering, user input, DOM manipulation, routing
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -79,7 +79,7 @@ construct-messenger/
     └── security/
 ```
 
-## 🔐 Security
+## Security
 
 This messenger implements:
 
@@ -92,14 +92,7 @@ This messenger implements:
 
 All cryptographic operations are performed in Rust/WASM, isolated from JavaScript.
 
-## 📚 Documentation
-
-- [Architecture Overview](./docs/architecture/)
-- [API Reference](./docs/api/)
-- [Security Model](./docs/security/)
-- [Development Guide](./docs/RUST+TS.md)
-
-## 🧪 Testing
+## Testing
 
 ```bash
 # Rust unit tests
@@ -115,7 +108,7 @@ cd packages/core && wasm-pack test --headless --firefox
 pnpm test
 ```
 
-## 📦 Building
+## Building
 
 ```bash
 # Production build
@@ -129,7 +122,7 @@ cd packages/core
 wasm-pack build --target web --release
 ```
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Core (Rust)
 - `x25519-dalek` - Key exchange
@@ -143,13 +136,9 @@ wasm-pack build --target web --release
 - TypeScript - Type safety
 - Vite - Build tool
 
-## 📝 License
+## License
 
 MIT
-
-## 👥 Team
-
-Construct Team
 
 ## 🗺️ Roadmap
 
@@ -159,9 +148,3 @@ Construct Team
 - [ ] PWA frontend
 - [ ] Desktop app (Tauri)
 - [ ] Mobile apps (FFI)
-
----
-
-**Status:** 🚧 In Development
-
-For more details, see [RUST+TS.md](./docs/RUST+TS.md)
