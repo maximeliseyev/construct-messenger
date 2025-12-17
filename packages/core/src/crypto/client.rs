@@ -3,6 +3,14 @@ use crate::utils;
 use crate::crypto::x3dh::{PublicKeyBundle, RegistrationBundle, X3DH};
 use x25519_dalek::PublicKey;
 
+#[cfg(feature = "post-quantum")]
+use pqcrypto_kyber::{keypair as kyber_keypair, encapsulate};
+#[cfg(feature = "post-quantum")]
+use pqcrypto_dilithium::{keypair as dilithium_keypair, sign};
+#[cfg(feature = "post-quantum")]
+use crate::crypto::pq_x3dh::PQX3DHBundle;
+
+
 /// Главный клиент, объединяющий все компоненты
 pub struct ClientCrypto {
     // X3DH ключи
@@ -15,6 +23,14 @@ pub struct ClientCrypto {
 
     // Хранилище
     storage: Option<crate::storage::KeyStorage>,
+
+    // Post-Quantum keys (conditionally compiled)
+    #[cfg(feature = "post-quantum")]
+    kyber_secret: pqcrypto_kyber::SecretKey,
+    #[cfg(feature = "post-quantum")]
+    kyber_prekey_secret: pqcrypto_kyber::SecretKey,
+    #[cfg(feature = "post-quantum")]
+    dilithium_secret: pqcrypto_dilithium::SecretKey,
 }
 
 impl ClientCrypto {
@@ -69,6 +85,50 @@ impl ClientCrypto {
         self.sessions.insert(session_id.clone(), session);
 
         Ok(session_id)
+    }
+
+    #[cfg(feature = "post-quantum")]
+    pub fn new_with_pqc() -> Result<Self, String> {
+        // Классические ключи
+        let identity_key = x25519_dalek::StaticSecret::random_from_rng(rand::rngs::OsRng);
+        let signed_prekey = x25519_dalek::StaticSecret::random_from_rng(rand::rngs::OsRng);
+        let signing_key = ed25519_dalek::SigningKey::generate(&mut rand::rngs::OsRng);
+        
+        // Пост-квантовые ключи
+        let (_, kyber_sk) = kyber_keypair().map_err(|e| e.to_string())?;
+        let (_, kyber_prekey_sk) = kyber_keypair().map_err(|e| e.to_string())?;
+        let (_, dilithium_sk) = dilithium_keypair().map_err(|e| e.to_string())?;
+        
+        Ok(Self {
+            identity_key,
+            signed_prekey,
+            signing_key,
+            sessions: std::collections::HashMap::new(),
+            storage: None,
+            kyber_secret: kyber_sk,
+            kyber_prekey_secret: kyber_prekey_sk,
+            dilithium_secret: dilithium_sk,
+        })
+    }
+    
+    #[cfg(feature = "post-quantum")]
+    pub fn perform_pq_x3dh(&self, remote_bundle: &PQX3DHBundle) -> Result<[u8; 64], String> {
+        // This is a placeholder as per the markdown, and needs more implementation details
+        
+        // 1. Классический X3DH (needs to be implemented correctly)
+        // let classical_secret = X3DH::perform_x3dh(...)
+        unimplemented!("Classical part of PQX3DH is not implemented yet");
+
+        // 2. Пост-квантовый обмен (needs proper key conversion and error handling)
+        // let public_key = pqcrypto_kyber::PublicKey::from_bytes(&remote_bundle.kyber_public_key)?;
+        // let (kyber_ciphertext, kyber_shared) = encapsulate(&public_key)?;
+        // ... and for the prekey ...
+        unimplemented!("Post-quantum part of PQX3DH is not implemented yet");
+        
+        // 3. Комбинируем через HKDF
+        // let combined = ...;
+        // let final_key = ...;
+        // Ok(final_key)
     }
 
     pub fn init_double_ratchet_session(&mut self, contact_id: &str, remote_bundle: &PublicKeyBundle) -> Result<String, String> {

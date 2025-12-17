@@ -25,6 +25,11 @@ desktop = [
 ]
 mobile = []
 test = ["wasm", "desktop"]
+post-quantum = [
+    "dep:pqcrypto-kyber",
+    "dep:pqcrypto-dilithium",
+    "dep:pqcrypto-traits",
+]
 
 # Зависимости из workspace
 [dependencies]
@@ -44,6 +49,9 @@ sha2 = { workspace = true }
 rand = { workspace = true }
 rand_core = { workspace = true }
 zeroize = { workspace = true }
+pqcrypto-kyber = { workspace = true, optional = true }
+pqcrypto-dilithium = { workspace = true, optional = true }
+pqcrypto-traits = { workspace = true, optional = true }
 
 # Сериализация
 rmp-serde = { workspace = true }
