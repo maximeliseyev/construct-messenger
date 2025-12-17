@@ -1,0 +1,14 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: #1a1a1a;
+  color: #fff;
+}
+
+.main-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-bottom: 60px; /* Space for nav bar or input */
+}
