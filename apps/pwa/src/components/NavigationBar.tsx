@@ -1,25 +1,33 @@
 import React from 'react';
 import './NavigationBar.css';
 
+type Screen = 'contacts' | 'chats' | 'settings';
+
 type NavigationBarProps = {
-  currentScreen: string;
-  onNavigate: (screen: 'chats' | 'settings') => void;
+  currentScreen: Screen;
+  onNavigate: (screen: Screen) => void;
 };
 
 const NavigationBar: React.FC<NavigationBarProps> = ({ currentScreen, onNavigate }) => {
   return (
     <nav className="navigation-bar">
       <button
-        className={currentScreen === 'chats' ? 'active' : ''}
-        onClick={() => onNavigate('chats')}
+        className={`nav-item ${currentScreen === 'contacts' ? 'active' : ''}`}
+        onClick={() => onNavigate('contacts')}
       >
-        Чаты
+        <span className="nav-label mono">CONTACTS</span>
       </button>
       <button
-        className={currentScreen === 'settings' ? 'active' : ''}
+        className={`nav-item ${currentScreen === 'chats' ? 'active' : ''}`}
+        onClick={() => onNavigate('chats')}
+      >
+        <span className="nav-label mono">CHATS</span>
+      </button>
+      <button
+        className={`nav-item ${currentScreen === 'settings' ? 'active' : ''}`}
         onClick={() => onNavigate('settings')}
       >
-        Настройки
+        <span className="nav-label mono">SETTINGS</span>
       </button>
     </nav>
   );

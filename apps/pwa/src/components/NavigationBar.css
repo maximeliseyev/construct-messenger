@@ -5,20 +5,42 @@
   right: 0;
   display: flex;
   justify-content: space-around;
-  background-color: #333;
-  padding: 10px 0;
-  border-top: 1px solid #444;
+  background-color: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+  padding: 0;
+  height: 56px;
+  z-index: 100;
 }
 
-.navigation-bar button {
+.nav-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
-  color: #aaa;
-  font-size: 16px;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  letter-spacing: 0.5px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  border-right: 1px solid var(--border-color);
 }
 
-.navigation-bar button.active {
-  color: #fff;
-  font-weight: bold;
+.nav-item:last-child {
+  border-right: none;
+}
+
+.nav-item:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.nav-item.active {
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+}
+
+.nav-label {
+  user-select: none;
 }

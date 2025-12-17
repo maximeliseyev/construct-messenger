@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import ChatListScreen from './components/ChatListScreen';
+import ContactsScreen from './components/ContactsScreen';
 import SettingsScreen from './components/SettingsScreen';
 import ChatScreen from './components/ChatScreen';
 import CryptoDemo from './components/CryptoDemo';
 import NavigationBar from './components/NavigationBar';
 import './App.css';
 
-type Screen = 'chats' | 'settings' | 'chat' | 'crypto';
+type Screen = 'contacts' | 'chats' | 'settings' | 'chat';
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('crypto');
+  const [currentScreen, setCurrentScreen] = useState<Screen>('chats');
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
 
   const navigateToChat = (chatId: string) => {
@@ -24,14 +25,14 @@ function App() {
 
   const renderScreen = () => {
     switch (currentScreen) {
+      case 'contacts':
+        return <ContactsScreen />;
       case 'chats':
         return <ChatListScreen onChatSelect={navigateToChat} />;
       case 'settings':
         return <SettingsScreen />;
       case 'chat':
         return <ChatScreen chatId={selectedChatId!} onBack={navigateBack} />;
-      case 'crypto':
-        return <CryptoDemo />;
       default:
         return <ChatListScreen onChatSelect={navigateToChat} />;
     }

@@ -1,14 +1,14 @@
 .app-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100vh;
   width: 100%;
-  background-color: #1a1a1a;
-  color: #fff;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .main-content {
-  flex-grow: 1;
+  flex: 1;
   overflow-y: auto;
-  padding-bottom: 60px; /* Space for nav bar or input */
+  overflow-x: hidden;
 }
