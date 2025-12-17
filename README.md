@@ -140,11 +140,3 @@ wasm-pack build --target web --release
 
 MIT
 
-## 🗺️ Roadmap
-
-- [x] Monorepo structure
-- [x] Core crypto modules
-- [ ] Complete API implementation
-- [ ] PWA frontend
-- [ ] Desktop app (Tauri)
-- [ ] Mobile apps (FFI)
