@@ -6,11 +6,14 @@ type Screen = 'contacts' | 'chats' | 'settings';
 type NavigationBarProps = {
   currentScreen: Screen;
   onNavigate: (screen: Screen) => void;
+  layoutMode?: 'mobile' | 'desktop';
 };
 
-const NavigationBar: React.FC<NavigationBarProps> = ({ currentScreen, onNavigate }) => {
+const NavigationBar: React.FC<NavigationBarProps> = ({ currentScreen, onNavigate, layoutMode = 'mobile' }) => {
+  const navClassName = `navigation-bar ${layoutMode === 'desktop' ? 'navigation-bar-desktop' : ''}`;
+  
   return (
-    <nav className="navigation-bar">
+    <nav className={navClassName}>
       <button
         className={`nav-item ${currentScreen === 'contacts' ? 'active' : ''}`}
         onClick={() => onNavigate('contacts')}

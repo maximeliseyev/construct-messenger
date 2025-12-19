@@ -6,6 +6,7 @@ pub mod double_ratchet;
 pub mod x3dh;
 pub mod keys;
 pub mod session;
+pub mod master_key;
 
 // Post-Quantum modules (conditionally compiled)
 #[cfg(feature = "post-quantum")]

@@ -45,6 +45,8 @@ uuid = { workspace = true }
 x25519-dalek = { workspace = true }
 ed25519-dalek = { workspace = true }
 chacha20poly1305 = { workspace = true }
+aes-gcm = { workspace = true }
+pbkdf2 = { workspace = true }
 hkdf = { workspace = true }
 sha2 = { workspace = true }
 rand = { workspace = true }
@@ -71,13 +73,22 @@ web-sys = { workspace = true, optional = true, features = [
     "IdbFactory",
     "IdbDatabase",
     "IdbTransaction",
+    "IdbTransactionMode",
+    "IdbObjectStoreParameters",
     "IdbRequest",
     "IdbOpenDbRequest",
     "IdbVersionChangeEvent",
     "DomException",
     "IdbObjectStore",
+    "IdbIndex",
     "IdbCursor",
     "IdbKeyRange",
+    "WebSocket",
+    "BinaryType",
+    "MessageEvent",
+    "ErrorEvent",
+    "CloseEvent",
+    "Event",
 ] }
 serde-wasm-bindgen = { workspace = true, optional = true }
 

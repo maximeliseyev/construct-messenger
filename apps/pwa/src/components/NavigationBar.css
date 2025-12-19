@@ -1,16 +1,28 @@
+/* Base styles for the navigation bar */
 .navigation-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
   display: flex;
   justify-content: space-around;
   background-color: var(--bg-primary);
   border-top: 1px solid var(--border-color);
   padding: 0;
   height: 56px;
+}
+
+/* Mobile-specific: apply fixed positioning only when NOT in desktop mode */
+.navigation-bar:not(.navigation-bar-desktop) {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
 }
+
+/* Desktop-specific overrides (if any) */
+.navigation-bar-desktop {
+  z-index: 1; /* Example: ensure it's on a sane layer */
+}
+
+
 
 .nav-item {
   flex: 1;

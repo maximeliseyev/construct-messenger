@@ -24,6 +24,8 @@ serde-wasm-bindgen = "0.6"
 x25519-dalek = { version = "2.0", features = ["reusable_secrets", "static_secrets"] }
 ed25519-dalek = { version = "2.0", features = ["std", "rand_core"] }
 chacha20poly1305 = { version = "0.10", features = ["std", "getrandom"] }
+aes-gcm = "0.10"
+pbkdf2 = { version = "0.12", features = ["simple"] }
 hkdf = "0.12"
 sha2 = "0.10"
 rand = "0.8"

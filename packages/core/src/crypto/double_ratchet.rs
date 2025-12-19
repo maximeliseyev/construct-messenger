@@ -26,6 +26,16 @@ pub struct DoubleRatchetSession {
 }
 
 impl DoubleRatchetSession {
+    /// Получить session_id
+    pub fn session_id(&self) -> &str {
+        &self.session_id
+    }
+
+    /// Получить contact_id
+    pub fn contact_id(&self) -> &str {
+        &self.contact_id
+    }
+
     /// Инициатор сессии (Alice) - создает сессию для отправки первого сообщения
     pub fn new_x3dh_session(
         root_key: [u8; 32], // Из X3DH обмена
